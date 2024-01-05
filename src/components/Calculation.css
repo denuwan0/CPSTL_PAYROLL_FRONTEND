@@ -1,0 +1,41 @@
+.calculation-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+   
+  }
+  
+  .calculation-form label {
+    display: block;
+    margin-bottom: 8px;
+  }
+  
+  .calculation-form input,
+  .calculation-form select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+  }
+  
+  .calculation-form button {
+    background-color: #4caf50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  
+  .calculation-form button:hover {
+    background-color: #45a049;
+  }
+  
+  .calculation-form button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+  
+ 
+  

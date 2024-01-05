@@ -1,0 +1,16 @@
+.table-wrapper {
+  max-height: 400px; /* Set a max height for the table wrapper */
+  overflow-y: auto; /* Enable vertical scrolling */
+}
+
+.thead-fixed {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #fff; /* Background color of the fixed header */
+  border-collapse: separate;
+}
+
+.table {
+  border: 1px solid black; /* Border for the table */
+}
