@@ -14,6 +14,7 @@ import UserForm from "./components/UserForm";
 import Profile from "./components/Profile";
 import Paysheet from "./components/Paysheet";
 import ControlDetail from "./components/ControlDetail";
+import Datatable1 from "./components/Datatable1";
 
 const router = createBrowserRouter([
   {
@@ -71,6 +72,10 @@ const router = createBrowserRouter([
   {
     path: "/Control/detail",
     element: <ControlDetail />,
+  },
+  {
+    path: "/User/datatable",
+    element: <Datatable1 />,
   },
 ]);
 
