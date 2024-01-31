@@ -17,26 +17,50 @@ import { PersonPlusFill, FilePostFill } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
 import "./ScrollableTable.css";
 
-const CreateUser = () => {
+const CreatePaycode = () => {
   const userDataFromStorage = sessionStorage.getItem("userData");
   const userDataSess = userDataFromStorage
     ? JSON.parse(userDataFromStorage)
     : null;
   const navigate = useNavigate();
 
-  const [userDetails, setUserDetails] = useState({
-    userID: "",
-    epf: "",
-    empName: "",
-    costCenter: "",
-    password: "123",
-    role: "",
+  const [paycodeDetails, setUserDetails] = useState({
+    companyCode: "",
+    payCode: "",
+    calCode: "",
+    description: "",
+    isTaxableGross: false,
+    rate: "",
+    lastUpdateBy: userDataSess._userDetails.epf,
     createdBy: userDataSess._userDetails.epf,
   });
 
   const handleChange = (e) => {
+    console.log(e.target.checked);
     const { name, value } = e.target;
-    setUserDetails({ ...userDetails, [name]: value.toString() });
+
+    if (e.target.name == "isTaxableGross") {
+      if (e.target.checked == true) {
+        setUserDetails({ ...paycodeDetails, [name]: true });
+      } else {
+        setUserDetails({ ...paycodeDetails, [name]: false });
+      }
+    } else if (e.target.name == "rate") {
+      if (e.target.value) {
+        const inputValue = parseFloat(e.target.value);
+        if (inputValue < 0 || inputValue == 0) {
+          setUserDetails({ ...paycodeDetails, [name]: parseFloat(0) });
+        } else if (inputValue > 1 || inputValue == 1) {
+          setUserDetails({ ...paycodeDetails, [name]: parseFloat(1) });
+        } else {
+          setUserDetails({ ...paycodeDetails, [name]: parseFloat(value) });
+        }
+      }
+    } else {
+      setUserDetails({ ...paycodeDetails, [name]: value.toString() });
+    }
+
+    console.log(paycodeDetails);
   };
 
   const handleFormSubmit = (e) => {
@@ -55,21 +79,23 @@ const CreateUser = () => {
     };
 
     if (
-      userDetails.userID !== "" &&
-      userDetails.epf !== "" &&
-      userDetails.empName !== "" &&
-      userDetails.costCenter !== "" &&
-      userDetails.password !== "" &&
-      userDetails.role !== "" &&
-      userDetails.createdBy !== ""
+      paycodeDetails.companyCode !== "" &&
+      paycodeDetails.payCode !== "" &&
+      paycodeDetails.calCode !== "" &&
+      paycodeDetails.description !== "" &&
+      paycodeDetails.isTaxableGross !== "" &&
+      paycodeDetails.rate !== "" &&
+      paycodeDetails.lastUpdateBy !== "" &&
+      paycodeDetails.createdBy !== ""
     ) {
       axios
-        .post("http://13.234.120.62/api/User/CreateUser/", userDetails, config)
+        .post("http://13.234.120.62/api/Admin/create-paycode/", paycodeDetails)
         .then((response) => {
+          console.log(response);
           toast.success("Data saved successfully!");
           const timeout = setTimeout(() => {
             // Replace '/target-route' with the route you want to redirect to
-            navigate("/user");
+            navigate("/PayCode");
           }, 3000);
           console.log("User created:", response.data);
         })
@@ -91,12 +117,11 @@ const CreateUser = () => {
               <Card.Body>
                 <Row>
                   <Col className="col-md-06">
-                    <Card.Title>Create User</Card.Title>
+                    <Card.Title>Create Paycode</Card.Title>
                     <Card.Text></Card.Text>
                   </Col>
                   <Col className="col-md-06">
                     <Button
-                      href="/user/create"
                       variant="primary"
                       type="submit"
                       style={{ float: "right" }}
@@ -122,69 +147,88 @@ const CreateUser = () => {
                     <Col md={4}>
                       <Col className="mb-2">
                         <Form.Group controlId="userID">
-                          <Form.Label>Username</Form.Label>
+                          <Form.Label>Paycode</Form.Label>
                           <Form.Control
-                            type="text"
-                            placeholder="Enter username"
-                            name="userID"
-                            value={userDetails.userID}
+                            type="number"
+                            placeholder="Enter Paycode"
+                            name="payCode"
+                            value={paycodeDetails.payCode}
                             onChange={handleChange}
                           />
                         </Form.Group>
                       </Col>
                       <Col className="mb-2">
                         <Form.Group controlId="epf">
-                          <Form.Label>Epf</Form.Label>
+                          <Form.Label>Calcode</Form.Label>
                           <Form.Control
-                            type="number"
-                            placeholder="Enter Epf"
-                            name="epf"
-                            value={userDetails.epf}
+                            type="text"
+                            placeholder="Enter Calcode"
+                            name="calCode"
+                            value={paycodeDetails.calCode}
                             onChange={handleChange}
                           />
                         </Form.Group>
                       </Col>
                     </Col>
                     <Col md={8}>
-                      <Col className="mb-2">
-                        <Form.Group controlId="empName">
-                          <Form.Label>Name</Form.Label>
-                          <Form.Control
-                            type="text"
-                            placeholder="Enter Name"
-                            name="empName"
-                            value={userDetails.empName}
-                            onChange={handleChange}
-                          />
-                        </Form.Group>
-                      </Col>
                       <Row>
                         <Col md={6} className="mb-2">
                           <Form.Group controlId="costCenter">
-                            <Form.Label>Cost Center</Form.Label>
+                            <Form.Label>Company Code</Form.Label>
                             <Form.Select
-                              name="costCenter"
-                              value={userDetails.costCenter}
+                              name="companyCode"
+                              value={paycodeDetails.companyCode}
                               onChange={handleChange}
                             >
-                              <option value="">Select Cost Center</option>
-                              <option value="C10110">C10110</option>
+                              <option value="">Select Company</option>
+                              <option value="2000">2000</option>
+                              <option value="3000">3000</option>
                               {/* Add more options as needed */}
                             </Form.Select>
                           </Form.Group>
                         </Col>
                         <Col md={6} className="mb-2">
-                          <Form.Group controlId="role">
-                            <Form.Label>Role</Form.Label>
-                            <Form.Select
-                              name="role"
-                              value={userDetails.role}
+                          <Form.Group controlId="empName">
+                            <Form.Label>Rate </Form.Label>
+                            <Form.Control
+                              type="number"
+                              step="any" // Allows float values
+                              placeholder="Enter Rate"
+                              name="rate"
+                              value={paycodeDetails.rate}
                               onChange={handleChange}
-                            >
-                              <option value="">Select Role</option>
-                              <option value="Admin">Admin</option>
-                              {/* Add more options as needed */}
-                            </Form.Select>
+                            />
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col className="mb-2" md={9}>
+                          <Form.Group controlId="empName">
+                            <Form.Label>Description </Form.Label>
+                            <Form.Control
+                              type="text"
+                              placeholder="Enter Description"
+                              name="description"
+                              value={paycodeDetails.description}
+                              onChange={handleChange}
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col className="mb-2" md={3}>
+                          <Form.Group controlId="empName">
+                            <Row className="mt-4">
+                              <Col md={2}>
+                                <Form.Control
+                                  className="form-check-input"
+                                  type="checkbox"
+                                  name="isTaxableGross"
+                                  onChange={handleChange}
+                                />
+                              </Col>
+                              <Col md={6}>
+                                <Form.Label>isTaxableGross </Form.Label>
+                              </Col>
+                            </Row>
                           </Form.Group>
                         </Col>
                       </Row>
@@ -213,4 +257,4 @@ const CreateUser = () => {
   );
 };
 
-export default CreateUser;
+export default CreatePaycode;

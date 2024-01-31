@@ -34,56 +34,12 @@ function ControlDetail() {
   };
 
   const [controlDetailData, setControlDetailData] = useState([]);
-
-  // const controlDetailData = [
-  //   {
-  //     epf: 108995,
-  //     grossForEpf: 123465,
-  //     epfAmount: 23735,
-  //     etfAmount: 52333,
-  //     grossForTax: 20000,
-  //     taxAmount: 25000,
-  //   },
-  //   {
-  //     epf: 112683,
-  //     grossForEpf: 123465,
-  //     epfAmount: 23735,
-  //     etfAmount: 52333,
-  //     grossForTax: 20000,
-  //     taxAmount: 25000,
-  //   },
-  //   {
-  //     epf: 114392,
-  //     grossForEpf: 123465,
-  //     epfAmount: 23735,
-  //     etfAmount: 52333,
-  //     grossForTax: 20000,
-  //     taxAmount: 25000,
-  //   },
-  //   {
-  //     epf: 114396,
-  //     grossForEpf: 123465,
-  //     epfAmount: 23735,
-  //     etfAmount: 52333,
-  //     grossForTax: 20000,
-  //     taxAmount: 25000,
-  //   },
-  //   {
-  //     epf: 116735,
-  //     grossForEpf: 123465,
-  //     epfAmount: 23735,
-  //     etfAmount: 52333,
-  //     grossForTax: 20000,
-  //     taxAmount: 25000,
-  //   },
-  // ];
-
-  //console.log(controlDetailData);
+  console.log(controlDetailData);
 
   useEffect(() => {
     try {
       axios
-        .get("http://13.233.230.0/api/Payroll/get-payroll-summary", {
+        .get("http://13.234.120.62/api/Payroll/get-payroll-summary", {
           params: {
             companyCode: "3000",
             period: "202310",
@@ -95,7 +51,7 @@ function ControlDetail() {
         .then((response) => {
           var data = null;
           data = JSON.parse(response.data.data);
-          console.log(data);
+          //console.log(data);
           setControlDetailData(data);
         });
     } catch (error) {

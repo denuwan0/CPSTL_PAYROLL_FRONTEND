@@ -2,7 +2,7 @@ import FormWizard from "react-form-wizard-component";
 import "react-form-wizard-component/dist/style.css";
 import { useState } from "react";
 
-function App() {
+function Process() {
   const [firstTabInput, setFirstTabInput] = useState([]);
   const handleComplete = () => {
     console.log("Form completed!");
@@ -78,4 +78,4 @@ function App() {
   );
 }
 
-export default App;
+export default Process;

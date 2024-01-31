@@ -24,7 +24,7 @@ const LoginPage = () => {
     if ((username, password)) {
       try {
         axios
-          .post("http://13.233.230.0/api/User/Authenticate/", {
+          .post("http://13.234.120.62/api/User/Authenticate/", {
             userId: username,
             password: password,
           })

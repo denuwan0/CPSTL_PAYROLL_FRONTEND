@@ -11,7 +11,6 @@ import {
   user,
 } from "react-bootstrap";
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
 import "./ScrollableTable.css";
@@ -27,13 +26,16 @@ function User() {
     ? JSON.parse(userDataFromStorage)
     : null;
   const navigate = useNavigate();
-  console.log(userDataSess);
+  //console.log(userDataSess);
   if (userDataSess == null) {
     navigate("/login");
   }
 
   const [userData, setData] = useState([]);
-  const [showModal, setShowModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  console.log(userData);
 
   const config = {
     headers: {
@@ -46,38 +48,72 @@ function User() {
     epf: "",
     empName: "",
     costCenter: "",
-    password: "123",
     role: "",
-    createdBy: userDataSess._userDetails.epf,
   });
+
+  const [singleUserData, setSingleUserData] = useState({
+    userID: "",
+    epf: "",
+    empName: "",
+    costCenter: "",
+    role: "",
+  });
+
+  //console.log(singleUserData);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUserDetails({ ...userDetails, [name]: value.toString() });
   };
 
-  const handleShowModal = () => {
+  const handleShowViewModal = async (id) => {
     try {
       axios
-        .get("http://13.233.230.0/api/User/GetUsers", config)
+        .get(`http://13.234.120.62/api/User/get-user-id?id=${id}`, config)
         .then((response) => {
           var data = null;
           data = response.data.data;
-          console.log(response.data.data);
-          setUserDetails(JSON.parse(data));
+          //console.log(JSON.parse(data));
+          setSingleUserData(JSON.parse(data));
+          setShowViewModal(true);
         })
         .catch((error) => {
-          console.log(error);
-          toast.error(error.message);
+          //console.log(error);
+          toast.error(error.response.data.message);
         });
     } catch (error) {
-      console.error("Error logging in:", error);
+      //console.error("Error logging in:", error);
     }
-    setShowModal(true);
   };
 
-  const handleCloseModal = () => {
-    setShowModal(false);
+  const handleCloseViewModal = () => {
+    setShowViewModal(false);
+    //setSingleUserData(null);
+  };
+
+  const handleShowEditModal = (id) => {
+    try {
+      axios
+        .get(`http://13.234.120.62/api/User/get-user-id?id=${id}`, config)
+        .then((response) => {
+          var data = null;
+          data = response.data.data;
+          //console.log(JSON.parse(data));
+          setSingleUserData(JSON.parse(data));
+          setShowEditModal(true);
+        })
+        .catch((error) => {
+          //console.log(error);
+          toast.error(error.response.data.message);
+        });
+    } catch (error) {
+      //console.error("Error logging in:", error);
+    }
+    setShowEditModal(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
   };
 
   useEffect(() => {
@@ -86,7 +122,7 @@ function User() {
 
     try {
       axios
-        .get("http://13.233.230.0/api/User/GetUsers", config)
+        .get("http://13.234.120.62/api/User/GetUsers", config)
         .then((response) => {
           var data = null;
           data = response.data.data;
@@ -94,11 +130,11 @@ function User() {
           setData(JSON.parse(data));
         })
         .catch((error) => {
-          console.log(error);
+          //console.log(error);
           toast.error(error.message);
         });
     } catch (error) {
-      console.error("Error logging in:", error);
+      //console.error("Error logging in:", error);
     }
   }, []);
 
@@ -148,7 +184,7 @@ function User() {
                   </thead>
                   <tbody>
                     {userData.map((row, index) => (
-                      <tr key={index}>
+                      <tr key={row.id}>
                         <td className="table-data">{index + 1}</td>
                         <td className="table-data">{row.epf}</td>
                         <td className="table-data">{row.empName}</td>
@@ -157,7 +193,7 @@ function User() {
                         <td className="table-data">
                           <i>
                             <Button
-                              onClick={handleShowModal}
+                              onClick={() => handleShowViewModal(row.id)}
                               className="btn btn-primary "
                               variant="warning"
                             >
@@ -167,7 +203,7 @@ function User() {
 
                           <i>
                             <Button
-                              onClick={handleShowModal}
+                              onClick={() => handleShowEditModal(row.id)}
                               className="btn btn-primary "
                               variant="primary"
                             >
@@ -188,7 +224,11 @@ function User() {
         </Row>
       </Container>
       <Footer />
-      <Modal show={showModal} onHide={handleCloseModal} className="modal-lg">
+      <Modal
+        show={showEditModal}
+        onHide={handleCloseEditModal}
+        className="modal-lg"
+      >
         <Modal.Header closeButton style={{ backgroundColor: "#c1dcef" }}>
           <Modal.Title>User Details</Modal.Title>
         </Modal.Header>
@@ -201,8 +241,9 @@ function User() {
                   type="text"
                   placeholder="Enter Epf"
                   name="epf"
-                  value={userDetails.epf}
+                  value={singleUserData.epf}
                   onChange={handleChange}
+                  disabled
                 />
               </Form.Group>
             </Col>
@@ -213,7 +254,7 @@ function User() {
                   type="text"
                   placeholder="Enter Name"
                   name="empName"
-                  value={userDetails.empName}
+                  value={singleUserData.empName}
                   onChange={handleChange}
                 />
               </Form.Group>
@@ -227,8 +268,9 @@ function User() {
                   type="text"
                   placeholder="Enter USername"
                   name="empName"
-                  value={userDetails.empName}
+                  value={singleUserData.empName}
                   onChange={handleChange}
+                  disabled
                 />
               </Form.Group>
             </Col>
@@ -237,7 +279,7 @@ function User() {
                 <Form.Label>Role</Form.Label>
                 <Form.Select
                   name="role"
-                  value={userDetails.role}
+                  value={singleUserData.role}
                   onChange={handleChange}
                 >
                   <option value="">Select Role</option>
@@ -251,7 +293,7 @@ function User() {
                 <Form.Label>Cost Center</Form.Label>
                 <Form.Select
                   name="costCenter"
-                  value={userDetails.costCenter}
+                  value={singleUserData.costCenter}
                   onChange={handleChange}
                 >
                   <option value="">Select Cost Center</option>
@@ -263,10 +305,88 @@ function User() {
           </Row>
         </Modal.Body>
         <Modal.Footer style={{ backgroundColor: "#c1dcef" }}>
-          <Button variant="primary" onClick={handleCloseModal}>
+          <Button variant="primary" onClick={handleCloseEditModal}>
             Update
           </Button>
-          <Button variant="danger" onClick={handleCloseModal}>
+          <Button variant="danger" onClick={handleCloseEditModal}>
+            Close
+          </Button>
+          {/* You can add additional buttons here */}
+        </Modal.Footer>
+      </Modal>
+      <Modal
+        show={showViewModal}
+        onHide={handleCloseViewModal}
+        className="modal-lg"
+      >
+        <Modal.Header closeButton style={{ backgroundColor: "#c1dcef" }}>
+          <Modal.Title>User Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Row className="mb-3">
+            <Col md={3}>
+              <Form.Group controlId="userID">
+                <Form.Label>Epf:</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="epf"
+                  value={singleUserData.epf}
+                  disabled
+                />
+              </Form.Group>
+            </Col>
+            <Col md={9}>
+              <Form.Group controlId="userID">
+                <Form.Label>Name:</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="empName"
+                  value={singleUserData.empName}
+                  disabled
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row className="mb-3">
+            <Col md={4}>
+              <Form.Group controlId="userID">
+                <Form.Label>Username:</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="empName"
+                  value={singleUserData.empName}
+                  disabled
+                />
+              </Form.Group>
+            </Col>
+            <Col md={4}>
+              <Form.Group controlId="role">
+                <Form.Label>Role</Form.Label>
+                <Form.Select name="role" value={singleUserData.role} disabled>
+                  <option value="">Select Role</option>
+                  <option value="Admin">Admin</option>
+                  {/* Add more options as needed */}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col md={4}>
+              <Form.Group controlId="costCenter">
+                <Form.Label>Cost Center</Form.Label>
+                <Form.Select
+                  name="costCenter"
+                  value={singleUserData.costCenter}
+                  disabled
+                >
+                  <option value="">Select Cost Center</option>
+                  <option value="C10110">C10110</option>
+                  {/* Add more options as needed */}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          </Row>
+        </Modal.Body>
+        <Modal.Footer style={{ backgroundColor: "#c1dcef" }}>
+          <Button variant="danger" onClick={handleCloseViewModal}>
             Close
           </Button>
           {/* You can add additional buttons here */}

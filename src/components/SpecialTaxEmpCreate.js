@@ -17,26 +17,28 @@ import { PersonPlusFill, FilePostFill } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
 import "./ScrollableTable.css";
 
-const CreateUser = () => {
+const SpecialTaxEmpCreate = () => {
   const userDataFromStorage = sessionStorage.getItem("userData");
   const userDataSess = userDataFromStorage
     ? JSON.parse(userDataFromStorage)
     : null;
   const navigate = useNavigate();
 
-  const [userDetails, setUserDetails] = useState({
-    userID: "",
+  const [spTaxDetails, setSpTaxDetails] = useState({
     epf: "",
-    empName: "",
+    companyCode: "",
+    payCode: "",
     costCenter: "",
-    password: "123",
-    role: "",
+    calCode: "",
+    rate: "",
     createdBy: userDataSess._userDetails.epf,
   });
 
+  console.log(userDataSess);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setUserDetails({ ...userDetails, [name]: value.toString() });
+    setSpTaxDetails({ spTaxDetails, [name]: value.toString() });
   };
 
   const handleFormSubmit = (e) => {
@@ -55,16 +57,20 @@ const CreateUser = () => {
     };
 
     if (
-      userDetails.userID !== "" &&
-      userDetails.epf !== "" &&
-      userDetails.empName !== "" &&
-      userDetails.costCenter !== "" &&
-      userDetails.password !== "" &&
-      userDetails.role !== "" &&
-      userDetails.createdBy !== ""
+      spTaxDetails.epf !== "" &&
+      spTaxDetails.companyCode !== "" &&
+      spTaxDetails.payCode !== "" &&
+      spTaxDetails.costCenter !== "" &&
+      spTaxDetails.calCode !== "" &&
+      spTaxDetails.rate !== "" &&
+      spTaxDetails.createdBy !== ""
     ) {
       axios
-        .post("http://13.234.120.62/api/User/CreateUser/", userDetails, config)
+        .post(
+          "http://13.234.120.62/api/Admin/create-special-tax",
+          spTaxDetails,
+          config
+        )
         .then((response) => {
           toast.success("Data saved successfully!");
           const timeout = setTimeout(() => {
@@ -91,7 +97,7 @@ const CreateUser = () => {
               <Card.Body>
                 <Row>
                   <Col className="col-md-06">
-                    <Card.Title>Create User</Card.Title>
+                    <Card.Title>Create Special Tax</Card.Title>
                     <Card.Text></Card.Text>
                   </Col>
                   <Col className="col-md-06">
@@ -119,75 +125,50 @@ const CreateUser = () => {
               <Card style={{ backgroundColor: "#c1dcef" }}>
                 <Card.Body>
                   <Row>
+                    <Col md={4} className="mb-2">
+                      <Form.Group controlId="costCenter">
+                        <Form.Label>Employee EPF</Form.Label>
+                        <Form.Select
+                          name="epf"
+                          value={spTaxDetails.epf}
+                          onChange={handleChange}
+                        >
+                          <option value="">Select Employee EPF</option>
+                          <option value="17533">17533</option>
+                          <option value="17534">17534</option>
+                          <option value="17535">17535</option>
+                          <option value="17536">17536</option>
+                          {/* Add more options as needed */}
+                        </Form.Select>
+                      </Form.Group>
+                    </Col>
                     <Col md={4}>
                       <Col className="mb-2">
                         <Form.Group controlId="userID">
-                          <Form.Label>Username</Form.Label>
+                          <Form.Label>Paycode</Form.Label>
                           <Form.Control
                             type="text"
-                            placeholder="Enter username"
-                            name="userID"
-                            value={userDetails.userID}
-                            onChange={handleChange}
-                          />
-                        </Form.Group>
-                      </Col>
-                      <Col className="mb-2">
-                        <Form.Group controlId="epf">
-                          <Form.Label>Epf</Form.Label>
-                          <Form.Control
-                            type="number"
-                            placeholder="Enter Epf"
-                            name="epf"
-                            value={userDetails.epf}
+                            placeholder="Enter Paycode"
+                            name="payCode"
+                            value={spTaxDetails.payCode}
                             onChange={handleChange}
                           />
                         </Form.Group>
                       </Col>
                     </Col>
-                    <Col md={8}>
+                    <Col md={4}>
                       <Col className="mb-2">
-                        <Form.Group controlId="empName">
-                          <Form.Label>Name</Form.Label>
+                        <Form.Group controlId="epf">
+                          <Form.Label>Rate</Form.Label>
                           <Form.Control
-                            type="text"
-                            placeholder="Enter Name"
-                            name="empName"
-                            value={userDetails.empName}
+                            type="number"
+                            placeholder="Enter Rate"
+                            name="rate"
+                            value={spTaxDetails.rate}
                             onChange={handleChange}
                           />
                         </Form.Group>
                       </Col>
-                      <Row>
-                        <Col md={6} className="mb-2">
-                          <Form.Group controlId="costCenter">
-                            <Form.Label>Cost Center</Form.Label>
-                            <Form.Select
-                              name="costCenter"
-                              value={userDetails.costCenter}
-                              onChange={handleChange}
-                            >
-                              <option value="">Select Cost Center</option>
-                              <option value="C10110">C10110</option>
-                              {/* Add more options as needed */}
-                            </Form.Select>
-                          </Form.Group>
-                        </Col>
-                        <Col md={6} className="mb-2">
-                          <Form.Group controlId="role">
-                            <Form.Label>Role</Form.Label>
-                            <Form.Select
-                              name="role"
-                              value={userDetails.role}
-                              onChange={handleChange}
-                            >
-                              <option value="">Select Role</option>
-                              <option value="Admin">Admin</option>
-                              {/* Add more options as needed */}
-                            </Form.Select>
-                          </Form.Group>
-                        </Col>
-                      </Row>
                     </Col>
                   </Row>
                 </Card.Body>
@@ -213,4 +194,4 @@ const CreateUser = () => {
   );
 };
 
-export default CreateUser;
+export default SpecialTaxEmpCreate;

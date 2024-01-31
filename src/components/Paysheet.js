@@ -35,10 +35,10 @@ function Paysheet() {
   useEffect(() => {
     try {
       axios
-        .get("http://13.233.230.0/api/Payroll/get-paysheet", {
+        .get("http://13.234.120.62/api/Payroll/get-paysheet", {
           params: {
-            epf: "17534",
-            period: "202310",
+            epf: "17532",
+            period: "202312",
           },
           headers: {
             config,

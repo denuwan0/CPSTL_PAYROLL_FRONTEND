@@ -8,7 +8,12 @@ import {
   Image,
   Badge,
 } from "react-bootstrap";
-import { ArrowRight, FilePerson, Power } from "react-bootstrap-icons";
+import {
+  ArrowRight,
+  FilePerson,
+  Power,
+  CircleFill1,
+} from "react-bootstrap-icons";
 import "../data/header.css";
 import logoImage from "../images/logo.png";
 
@@ -70,12 +75,26 @@ export default function header() {
                 id="basic-nav-dropdown"
               >
                 <NavDropdown.Item href="/PayCode">Paycode</NavDropdown.Item>
-                <NavDropdown.Item href="/calculation">
-                  Calculation
+                <NavDropdown.Item href="/Control">
+                  <Badge pill bg="primary">
+                    1
+                  </Badge>
+                  Control
                 </NavDropdown.Item>
-                <NavDropdown.Item href="/Control">Control</NavDropdown.Item>
+                <NavDropdown.Item href="/Payroll/process">
+                  <Badge pill bg="primary">
+                    2
+                  </Badge>
+                  Process Payroll
+                </NavDropdown.Item>
                 <NavDropdown.Item href="/Control/detail">
+                  <Badge pill bg="primary">
+                    3
+                  </Badge>
                   Control Detail
+                </NavDropdown.Item>
+                <NavDropdown.Item href="/PayrollState">
+                  Payroll Status
                 </NavDropdown.Item>
               </NavDropdown>
               <NavDropdown

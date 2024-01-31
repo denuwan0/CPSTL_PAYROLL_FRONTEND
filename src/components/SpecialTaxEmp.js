@@ -1,216 +1,492 @@
-import React, { useState } from "react";
+import React from "react";
 import {
-  Form,
   Table,
   Container,
   Button,
   Row,
   Card,
   Col,
+  Modal,
+  Form,
+  user,
 } from "react-bootstrap";
-import axios from "axios";
+import { useState, useEffect } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
+import "./ScrollableTable.css";
+import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { PersonPlusFill, FilePostFill } from "react-bootstrap-icons";
+import { PersonPlusFill, EyeFill, PencilSquare } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
-import "./ScrollableTable.css";
 
-const SpecialTaxEmpForm = () => {
+function SpecialTaxEmp() {
   const userDataFromStorage = sessionStorage.getItem("userData");
   const userDataSess = userDataFromStorage
     ? JSON.parse(userDataFromStorage)
     : null;
   const navigate = useNavigate();
+  //console.log(userDataSess);
+  if (userDataSess == null) {
+    navigate("/login");
+  }
 
-  const [userDetails, setUserDetails] = useState({
+  const [splTaxData, setData] = useState([]);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  console.log(splTaxData);
+
+  const config = {
+    headers: {
+      Authorization: `Bearer ${userDataSess.jwtToken}`,
+    },
+  };
+
+  const [splTaxDetails, setUserDetails] = useState({
     userID: "",
     epf: "",
     empName: "",
     costCenter: "",
-    password: "123",
     role: "",
-    createdBy: userDataSess._userDetails.epf,
   });
+
+  const [singleSplTaxData, setSingleUserData] = useState({
+    userID: "",
+    epf: "",
+    empName: "",
+    costCenter: "",
+    role: "",
+  });
+
+  //console.log(singleUserData);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setUserDetails({ ...userDetails, [name]: value.toString() });
+    setUserDetails({ ...splTaxDetails, [name]: value.toString() });
   };
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(userDataSess.jwtToken);
-
-    const config = {
-      headers: {
-        Authorization: `Bearer ${userDataSess.jwtToken}`,
-        ContentType: "application / json",
-      },
-    };
-
-    if (
-      userDetails.userID !== "" &&
-      userDetails.epf !== "" &&
-      userDetails.empName !== "" &&
-      userDetails.costCenter !== "" &&
-      userDetails.password !== "" &&
-      userDetails.role !== "" &&
-      userDetails.createdBy !== ""
-    ) {
+  const handleShowViewModal = async (id) => {
+    try {
       axios
-        .post("http://13.233.230.0/api/User/CreateUser/", userDetails, config)
+        .get(`http://13.234.120.62/api/User/get-user-id?id=${id}`, config)
         .then((response) => {
-          toast.success("Data saved successfully!");
-          const timeout = setTimeout(() => {
-            // Replace '/target-route' with the route you want to redirect to
-            navigate("/user");
-          }, 3000);
-          console.log("User created:", response.data);
+          var data = null;
+          data = response.data.data;
+          //console.log(JSON.parse(data));
+          setSingleUserData(JSON.parse(data));
+          setShowViewModal(true);
         })
         .catch((error) => {
-          console.error("Error creating user:", error);
+          //console.log(error);
+          toast.error(error.response.data.message);
         });
-    } else {
-      toast.error("Please fill all required feilds!");
+    } catch (error) {
+      //console.error("Error logging in:", error);
     }
   };
 
-  return (
-    <div>
-      <Header style={{ backgroundColor: "#dee2e6" }} />
-      <Container className="mt-5 table-container table-wrapper" md={3}>
-        <Row className="mb-2 ">
-          <Col>
-            <Card style={{ backgroundColor: "#c1dcef" }}>
-              <Card.Body>
-                <Row>
-                  <Col className="col-md-06">
-                    <Card.Title>Create Special Tax</Card.Title>
-                    <Card.Text></Card.Text>
-                  </Col>
-                  <Col className="col-md-06">
-                    <Button
-                      href="/user/create"
-                      variant="primary"
-                      type="submit"
-                      style={{ float: "right" }}
-                      onClick={handleSubmit}
-                    >
-                      <i>
-                        <FilePostFill /> Save
-                      </i>
-                    </Button>
-                  </Col>
-                </Row>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
+  const handleCloseViewModal = () => {
+    setShowViewModal(false);
+    //setSingleUserData(null);
+  };
 
-        <Form onSubmit={handleFormSubmit} className="md-6">
-          <Row>
-            <Col md={12}>
+  const handleShowEditModal = (id) => {
+    try {
+      axios
+        .get(`http://13.234.120.62/api/Admin/get-empspltax-id?id=${id}`, config)
+        .then((response) => {
+          var data = null;
+          data = response.data.data;
+          //console.log(JSON.parse(data));
+          setSingleUserData(JSON.parse(data));
+          setShowEditModal(true);
+        })
+        .catch((error) => {
+          //console.log(error);
+          toast.error(error.response.data.message);
+        });
+    } catch (error) {
+      //console.error("Error logging in:", error);
+    }
+    setShowEditModal(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+  };
+
+  useEffect(() => {
+    //console.log(userDataSess);
+    //console.log(userDataSess.jwtToken);
+
+    try {
+      axios
+        .get("http://13.234.120.62/api/Admin/get-empspltax")
+        .then((response) => {
+          var data = null;
+          data = response.data.data;
+          //console.log(response.data.data);
+          setData(JSON.parse(data));
+        })
+        .catch((error) => {
+          console.log(error.response.data.message);
+          toast.error(error.response.data.message);
+        });
+    } catch (error) {
+      //console.error("Error logging in:", error);
+    }
+  }, []);
+
+  if (splTaxData.length > 0) {
+    return (
+      <div>
+        <Header style={{ backgroundColor: "#dee2e6" }} />
+        <Container className="mt-5 table-container" md={3}>
+          <Row className="mb-2 ">
+            <Col>
               <Card style={{ backgroundColor: "#c1dcef" }}>
                 <Card.Body>
                   <Row>
-                    <Col md={4}>
-                      <Col className="mb-2">
-                        <Form.Group controlId="userID">
-                          <Form.Label>Username</Form.Label>
-                          <Form.Control
-                            type="text"
-                            placeholder="Enter username"
-                            name="userID"
-                            value={userDetails.userID}
-                            onChange={handleChange}
-                          />
-                        </Form.Group>
-                      </Col>
-                      <Col className="mb-2">
-                        <Form.Group controlId="epf">
-                          <Form.Label>Epf</Form.Label>
-                          <Form.Control
-                            type="number"
-                            placeholder="Enter Epf"
-                            name="epf"
-                            value={userDetails.epf}
-                            onChange={handleChange}
-                          />
-                        </Form.Group>
-                      </Col>
+                    <Col className="col-md-06">
+                      <Card.Title>Special Tax Details</Card.Title>
+                      <Card.Text></Card.Text>
                     </Col>
-                    <Col md={8}>
-                      <Col className="mb-2">
-                        <Form.Group controlId="empName">
-                          <Form.Label>Name</Form.Label>
-                          <Form.Control
-                            type="text"
-                            placeholder="Enter Name"
-                            name="empName"
-                            value={userDetails.empName}
-                            onChange={handleChange}
-                          />
-                        </Form.Group>
-                      </Col>
-                      <Row>
-                        <Col md={6} className="mb-2">
-                          <Form.Group controlId="costCenter">
-                            <Form.Label>Cost Center</Form.Label>
-                            <Form.Select
-                              name="costCenter"
-                              value={userDetails.costCenter}
-                              onChange={handleChange}
-                            >
-                              <option value="">Select Cost Center</option>
-                              <option value="C10110">C10110</option>
-                              {/* Add more options as needed */}
-                            </Form.Select>
-                          </Form.Group>
-                        </Col>
-                        <Col md={6} className="mb-2">
-                          <Form.Group controlId="role">
-                            <Form.Label>Role</Form.Label>
-                            <Form.Select
-                              name="role"
-                              value={userDetails.role}
-                              onChange={handleChange}
-                            >
-                              <option value="">Select Role</option>
-                              <option value="Admin">Admin</option>
-                              {/* Add more options as needed */}
-                            </Form.Select>
-                          </Form.Group>
-                        </Col>
-                      </Row>
+                    <Col className="col-md-06">
+                      <Button
+                        href="/SpecialTaxEmp/create"
+                        variant="primary"
+                        style={{ float: "right" }}
+                      >
+                        <i>
+                          <PersonPlusFill /> Create Special Tax
+                        </i>
+                      </Button>
                     </Col>
                   </Row>
                 </Card.Body>
               </Card>
             </Col>
           </Row>
-        </Form>
-      </Container>
-      <Footer />
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
-    </div>
-  );
-};
+          <Row className="table-wrapper">
+            <Col>
+              <Card style={{ backgroundColor: "#c1dcef" }}>
+                <Card.Body>
+                  <Table striped bordered hover className="table table-fixed">
+                    <thead className="fixed-header">
+                      <tr>
+                        <th>#</th>
+                        <th>Epf</th>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Username</th>
+                        <th>Option</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {splTaxData.map((row, index) => (
+                        <tr key={row.id}>
+                          <td className="table-data">{index + 1}</td>
+                          <td className="table-data">{row.epf}</td>
+                          <td className="table-data">{row.empName}</td>
+                          <td className="table-data">{row.role}</td>
+                          <td className="table-data">{row.userID}</td>
+                          <td className="table-data">
+                            <i>
+                              <Button
+                                onClick={() => handleShowViewModal(row.id)}
+                                className="btn btn-primary "
+                                variant="warning"
+                              >
+                                <EyeFill />
+                              </Button>
+                            </i>
 
-export default SpecialTaxEmpForm;
+                            <i>
+                              <Button
+                                onClick={() => handleShowEditModal(row.id)}
+                                className="btn btn-primary "
+                                variant="primary"
+                              >
+                                <PencilSquare />
+                              </Button>
+                            </i>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+          <Row>
+            <Col></Col>
+          </Row>
+        </Container>
+        <Footer />
+        <Modal
+          show={showEditModal}
+          onHide={handleCloseEditModal}
+          className="modal-lg"
+        >
+          <Modal.Header closeButton style={{ backgroundColor: "#c1dcef" }}>
+            <Modal.Title>User Details</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Row className="mb-3">
+              <Col md={3}>
+                <Form.Group controlId="userID">
+                  <Form.Label>Epf:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter Epf"
+                    name="epf"
+                    value={singleSplTaxData.epf}
+                    onChange={handleChange}
+                    disabled
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={9}>
+                <Form.Group controlId="userID">
+                  <Form.Label>Name:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter Name"
+                    name="empName"
+                    value={singleSplTaxData.empName}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col md={4}>
+                <Form.Group controlId="userID">
+                  <Form.Label>Username:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter USername"
+                    name="empName"
+                    value={singleSplTaxData.empName}
+                    onChange={handleChange}
+                    disabled
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group controlId="role">
+                  <Form.Label>Role</Form.Label>
+                  <Form.Select
+                    name="role"
+                    value={singleSplTaxData.role}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select Role</option>
+                    <option value="Admin">Admin</option>
+                    {/* Add more options as needed */}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group controlId="costCenter">
+                  <Form.Label>Cost Center</Form.Label>
+                  <Form.Select
+                    name="costCenter"
+                    value={singleSplTaxData.costCenter}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select Cost Center</option>
+                    <option value="C10110">C10110</option>
+                    {/* Add more options as needed */}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer style={{ backgroundColor: "#c1dcef" }}>
+            <Button variant="primary" onClick={handleCloseEditModal}>
+              Update
+            </Button>
+            <Button variant="danger" onClick={handleCloseEditModal}>
+              Close
+            </Button>
+            {/* You can add additional buttons here */}
+          </Modal.Footer>
+        </Modal>
+        <Modal
+          show={showViewModal}
+          onHide={handleCloseViewModal}
+          className="modal-lg"
+        >
+          <Modal.Header closeButton style={{ backgroundColor: "#c1dcef" }}>
+            <Modal.Title>User Details</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Row className="mb-3">
+              <Col md={3}>
+                <Form.Group controlId="userID">
+                  <Form.Label>Epf:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="epf"
+                    value={singleSplTaxData.epf}
+                    disabled
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={9}>
+                <Form.Group controlId="userID">
+                  <Form.Label>Name:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="empName"
+                    value={singleSplTaxData.empName}
+                    disabled
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col md={4}>
+                <Form.Group controlId="userID">
+                  <Form.Label>Username:</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="empName"
+                    value={singleSplTaxData.empName}
+                    disabled
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group controlId="role">
+                  <Form.Label>Role</Form.Label>
+                  <Form.Select
+                    name="role"
+                    value={singleSplTaxData.role}
+                    disabled
+                  >
+                    <option value="">Select Role</option>
+                    <option value="Admin">Admin</option>
+                    {/* Add more options as needed */}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group controlId="costCenter">
+                  <Form.Label>Cost Center</Form.Label>
+                  <Form.Select
+                    name="costCenter"
+                    value={singleSplTaxData.costCenter}
+                    disabled
+                  >
+                    <option value="">Select Cost Center</option>
+                    <option value="C10110">C10110</option>
+                    {/* Add more options as needed */}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer style={{ backgroundColor: "#c1dcef" }}>
+            <Button variant="danger" onClick={handleCloseViewModal}>
+              Close
+            </Button>
+            {/* You can add additional buttons here */}
+          </Modal.Footer>
+        </Modal>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+        />
+      </div>
+    );
+  } else {
+    return (
+      <div>
+        <Header style={{ backgroundColor: "#dee2e6" }} />
+        <Container className="mt-5 table-container" md={3}>
+          <Row className="mb-2 ">
+            <Col>
+              <Card style={{ backgroundColor: "#c1dcef" }}>
+                <Card.Body>
+                  <Row>
+                    <Col className="col-md-06">
+                      <Card.Title>Special Tax Details</Card.Title>
+                      <Card.Text></Card.Text>
+                    </Col>
+                    <Col className="col-md-06">
+                      <Button
+                        href="/SpecialTaxEmp/create"
+                        variant="primary"
+                        style={{ float: "right" }}
+                      >
+                        <i>
+                          <PersonPlusFill /> Create Special Tax
+                        </i>
+                      </Button>
+                    </Col>
+                  </Row>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+          <Row className="table-wrapper">
+            <Col>
+              <Card style={{ backgroundColor: "#c1dcef" }}>
+                <Card.Body>
+                  <Table striped bordered hover className="table table-fixed">
+                    <thead className="fixed-header">
+                      <tr>
+                        <th>#</th>
+                        <th>Epf</th>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Username</th>
+                        <th>Option</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <td className="table-data" colSpan={6}>
+                        <center>No Data Available</center>
+                      </td>
+                    </tbody>
+                  </Table>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+          <Row>
+            <Col></Col>
+          </Row>
+        </Container>
+        <Footer />
+
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+        />
+      </div>
+    );
+  }
+}
+
+export default SpecialTaxEmp;

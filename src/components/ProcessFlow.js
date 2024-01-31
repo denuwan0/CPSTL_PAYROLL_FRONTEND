@@ -11,7 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
-import Datatable1 from "./Datatable1";
+import Process from "./Process";
 import "./ScrollableTable.css";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
@@ -19,7 +19,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { PersonPlusFill, EyeFill } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
 
-function Datatable() {
+function ProcessFlow() {
   const userDataFromStorage = sessionStorage.getItem("userData");
   const userDataSess = userDataFromStorage
     ? JSON.parse(userDataFromStorage)
@@ -165,7 +165,7 @@ function Datatable() {
       <Container className="mt-5 ">
         <Row className="mb-2 ">
           <Col>
-            <Datatable1 />
+            <Process />
           </Col>
         </Row>
       </Container>
@@ -186,4 +186,4 @@ function Datatable() {
   );
 }
 
-export default Datatable;
+export default ProcessFlow;

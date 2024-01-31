@@ -18,7 +18,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { PersonPlusFill, EyeFill } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
 
-function Control() {
+function ProcessPayroll() {
   const userDataFromStorage = sessionStorage.getItem("userData");
   const userDataSess = userDataFromStorage
     ? JSON.parse(userDataFromStorage)
@@ -41,15 +41,15 @@ function Control() {
     approvedBy: userDataSess._userDetails.epf,
   });
 
-  //var payrollData = [];
+  const [empCount, setempCount] = useState();
   const [payrollData, setPayrollData] = useState([]);
-  //console.log(userDetails);
+  console.log(payrollData);
   //console.log(payrollNonSaplData);
   const handleConfirmBtn = () => {
     // Make an API call when the button is clicked
     axios
       .post(
-        "http://13.234.120.62/api/DataTransfer/ConfirmDataTransfer",
+        "http://13.233.230.0/api/DataTransfer/ConfirmDataTransfer",
         userDetails
       )
       .then((response) => {
@@ -67,7 +67,7 @@ function Control() {
     try {
       axios
         .post(
-          "http://13.234.120.62/api/DataTransfer/temp-data-rollback",
+          "http://13.233.230.0//api/DataTransfer/temp-data-rollback",
           config,
           userDetails
         )
@@ -103,52 +103,21 @@ function Control() {
           var data = null;
 
           data = JSON.parse(response.data.data);
+          //console.log(data[0].empCount);
+          setempCount(data[0].empCount);
 
           const payrollDataArr = [];
 
           {
             data[0].SAPPayData.map((item, index) => {
               //console.log(item),
-              var matched = false; //"";
-              var sapAmount = item.Amount ? item.Amount : 0;
-              var nonSapAmount = parseFloat(0);
-              var nonSapPayCode = parseFloat(0);
-              var nonSapLineCount = parseFloat(0);
-
-              //console.log(typeof data[0].nonSAPPayData[index]);
-
-              if (typeof data[0].nonSAPPayData[index] != "undefined") {
-                nonSapPayCode = data[0].nonSAPPayData[index].PayCode;
-                nonSapAmount = data[0].nonSAPPayData[index].Amount;
-                nonSapLineCount = data[0].nonSAPPayData[index].Line_Item_Count;
-
-                if (
-                  item.PayCode === nonSapPayCode &&
-                  item.Line_Item_Count === nonSapLineCount &&
-                  sapAmount == nonSapAmount
-                ) {
-                  matched = true;
-                } else {
-                  matched = false;
-                }
-              } else {
-                nonSapAmount = parseFloat(0);
-
-                matched = false;
-              }
-
-              //console.log(nonSapAmount);
 
               if (!payrollData.includes(item.PayCode)) {
                 payrollDataArr.push({
                   sapPayCode: item.PayCode,
                   sapAmount: parseFloat(item.Amount),
                   sapLineCount: item.Line_Item_Count,
-                  nonSapPayCode:
-                    nonSapPayCode == 0 ? item.PayCode : nonSapPayCode,
-                  nonSapAmount: parseFloat(nonSapAmount),
-                  nonSapLineCount: nonSapLineCount,
-                  status: matched,
+                  status: "Verified",
                 });
               }
             });
@@ -172,7 +141,7 @@ function Control() {
                 <Row>
                   <Col md={9}>
                     <Card.Title>Control</Card.Title>
-                    <Card.Text></Card.Text>
+                    <Card.Text>Employee count: {empCount}</Card.Text>
                   </Col>
                   <Col md={3}>
                     <Button
@@ -181,7 +150,7 @@ function Control() {
                       id="confirmBtn"
                       onClick={handleConfirmBtn}
                     >
-                      Confirm
+                      Process Payroll
                     </Button>
                     <Button
                       style={{ float: "right" }}
@@ -209,9 +178,6 @@ function Control() {
                       <th colSpan="2" style={{ textAlign: "center" }}>
                         SAP
                       </th>
-                      <th colSpan="2" style={{ textAlign: "center" }}>
-                        NON-SAP
-                      </th>
                       <th colSpan="2"></th>
                     </tr>
                     <tr>
@@ -219,8 +185,6 @@ function Control() {
                       <th style={{ textAlign: "center" }}>PayCode</th>
                       <th style={{ textAlign: "center" }}>Record Count</th>
                       <th style={{ textAlign: "center" }}>SAP Amount</th>
-                      <th style={{ textAlign: "center" }}>Record Count</th>
-                      <th style={{ textAlign: "center" }}>Non SAP Amount</th>
                       <th style={{ textAlign: "center" }}>Status</th>
                     </tr>
                   </thead>
@@ -251,27 +215,18 @@ function Control() {
                         >
                           {item.sapAmount}
                         </td>
-                        <td
-                          className="table-data"
-                          style={{ textAlign: "right" }}
-                        >
-                          {item.nonSapLineCount}
-                        </td>
-                        <td
-                          className="table-data"
-                          style={{ textAlign: "right" }}
-                        >
-                          {item.nonSapAmount}
-                        </td>
+
                         <td
                           className="table-data"
                           style={{ textAlign: "center" }}
                         >
-                          {item.status ? (
-                            <Badge bg="success">Matched</Badge>
-                          ) : (
-                            <Badge bg="danger">Unmatched</Badge>
-                          )}
+                          {
+                            (item.status = "Verified" ? (
+                              <Badge bg="success">Verified</Badge>
+                            ) : (
+                              <Badge bg="danger">UnVerified</Badge>
+                            ))
+                          }
                         </td>
                       </tr>
                     ))}
@@ -299,4 +254,4 @@ function Control() {
   );
 }
 
-export default Control;
+export default ProcessPayroll;
