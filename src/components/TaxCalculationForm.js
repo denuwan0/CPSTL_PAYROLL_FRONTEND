@@ -58,17 +58,17 @@ const TaxCalculationForm = () => {
 
     var bracketType1tot = 0;
     var bracketType2tot = 0;
+    const bracket1Ok = false;
+    const bracket2Ok = false;
 
-    if (openBracket1 % 2 == 0 && closeBracket1 % 2 == 0) {
+    if (openBracket1 == closeBracket1) {
       bracketType1tot = openBracket1 + closeBracket1;
       console.log("openBracket1 closeBracket1 even " + (openBracket1 % 2));
-    } else if (openBracket1 % 2 == 1 && closeBracket1 % 2 == 1) {
-      console.log("openBracket1 closeBracket1 odd " + (openBracket1 % 2));
     }
 
-    if (openBracket2 % 2 == 0 && closeBracket2 % 2 == 0) {
+    if (openBracket2 == closeBracket2) {
       bracketType2tot = openBracket2 + closeBracket2;
-    } else if (openBracket2 % 2 == 1 && closeBracket2 % 2 == 1) {
+      console.log("openBracket1 closeBracket1 odd " + (openBracket1 % 2));
     }
 
     console.log(bracketType1tot);
