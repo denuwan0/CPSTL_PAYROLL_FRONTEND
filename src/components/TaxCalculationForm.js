@@ -41,7 +41,7 @@ const TaxCalculationForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(taxDetails.calFormula);
+    //console.log(taxDetails);
     // const count = taxDetails.calFormula.match(/{|}|\(|\)/g);
 
     var theString = taxDetails.calFormula;
